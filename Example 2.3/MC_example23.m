@@ -8,7 +8,7 @@
 % https://arxiv.org/abs/2012.05364
   
 %% MC_example23.m
-% command line instructions for MatCont continuation of the system defined
+% command line instructions for the MatCont continuation of the system defined
 % in PS_example23.m
 % (Breda et al, EJQTDE, 2016)
 
