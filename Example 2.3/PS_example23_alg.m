@@ -1,6 +1,6 @@
 function out = PS_example23_alg
 % Copyright (c) 2021 Francesca Scarabel
-% This code is distributed under the MIT license, see LICENSE.txt for 
+% This code is distributed under the MIT license, see LICENSE for 
 % licensing information. 
 % 
 % If using this code, please cite 
@@ -26,7 +26,7 @@ out{6} = []; %@hessiansp;
 out{7} = []; %@der3;
 out{8} = [];
 out{9} = [];
-out{10}= @userf; %user function to select specific parameter values
+out{10}= @userf; % user function to select specific parameter values
 out{11}= [];
 out{12}= [];
 out{13}= [];

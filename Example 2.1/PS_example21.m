@@ -1,6 +1,6 @@
 function out = PS_example21
 % Copyright (c) 2021 Francesca Scarabel
-% This code is distributed under the MIT license, see LICENSE.txt for 
+% This code is distributed under the MIT license, see LICENSE for 
 % licensing information. 
 % 
 % If using this code, please cite 
@@ -14,6 +14,8 @@ function out = PS_example21
 % x(t) = gamma * (1-int_0^1 x(t-s)ds) * int_0^1 b(s)*x(t-s)ds
 % for the integrated state B=int_0^t x(s)ds
 % using Chebyshev zeros (plus 0)
+% The code uses the function polint.m, available from the Differentiation
+% Matrix Suite by Weideman, Reddy, 2000
 
 out{1} = @init;
 out{2} = @fun_eval;
@@ -24,7 +26,7 @@ out{6} = []; %@hessiansp;
 out{7} = []; %@der3;
 out{8} = [];
 out{9} = [];
-out{10}= @userf; %user function to select specific parameter values
+out{10}= @userf; % user function to select specific parameter values
 out{11}= [];
 out{12}= [];
 out{13}= [];
@@ -46,7 +48,6 @@ function dydt = fun_eval(time,state,loggamma,q,tau,M)
     % scaling
     Nodes = 0.5*tau*(x-1);
     DD = 2/tau*D;
-
     DM = DD(2:end,2:end);
 
     %% SYSTEM DEFINITION *** specific to the equation ***

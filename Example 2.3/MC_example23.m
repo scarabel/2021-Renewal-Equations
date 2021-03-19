@@ -1,5 +1,5 @@
 % Copyright (c) 2021 Francesca Scarabel
-% This code is distributed under the MIT license, see LICENSE.txt for 
+% This code is distributed under the MIT license, see LICENSE for 
 % licensing information. 
 % 
 % If using this code, please cite 
@@ -10,6 +10,7 @@
 %% MC_example23.m
 % command line instructions for MatCont continuation of the system defined
 % in PS_example23.m
+% (Breda et al, EJQTDE, 2016)
 
 clear;
 clearvars -global cds
@@ -37,7 +38,7 @@ TestTOL=1e-6;
 %% Continuation process
 
 MM=M; % dimension of the approximating ODE system
-handles=feval(@PS_specialRE_NBV);
+handles=feval(@PS_example23);
 opt=contset;
 global cds;
 
@@ -55,7 +56,7 @@ opt=contset(opt,'Backward',0);
 opt=contset(opt,'MaxNumPoints',100);
 
 state_eq=feval(handles{1},M,xeq,yeq); % initializes equilibrium vector
-[x0,v0]=init_EP_EP(@PS_specialRE_NBV,state_eq,par0,ap1);
+[x0,v0]=init_EP_EP(@PS_example23,state_eq,par0,ap1);
 [xe,ve,se,he,fe]=cont(@equilibrium,x0,v0,opt); xe(end,end)
 jj=0;
 while ((length(se)<3) && xe(end,end)< 10 && jj<10)
@@ -100,7 +101,7 @@ opt=contset(opt,'UserfunctionsInfo',UserInfo);
 % set options
 opt=contset(opt,'Backward',0);
 
-[x0,v0]=init_BP_EP(@PS_specialRE_NBV,BP,parBP,sBP,0.001);
+[x0,v0]=init_BP_EP(@PS_example23,BP,parBP,sBP,0.001);
 
 tic
 [xe,ve,se,he,fe]=cont(@equilibrium,x0,v0,opt); xe(end,end)
@@ -184,7 +185,7 @@ H=xe(1:MM,H_index);
 xeH=xe; veH=ve; seH=se; heH=he; feH=fe;
 parH=par;
 
-Hopf(M) = xe(end,H_index);
+% Hopf(M) = xe(end,H_index);
 
 %% Limit cycle continuation from H
 % H = vector of variables at H
@@ -214,7 +215,7 @@ UserInfo.name='userf'; UserInfo.state=1; UserInfo.label='P ';
 opt=contset(opt,'Userfunctions',1);
 opt=contset(opt,'UserfunctionsInfo',UserInfo);
 
-[x0,v0]=init_H_LC(@PS_specialRE_NBV,H,parH,ap1,1e-3,ntst,ncol);
+[x0,v0]=init_H_LC(@PS_example23,H,parH,ap1,1e-3,ntst,ncol);
 [xlc,vlc,slc,hlc,flc]= cont(@limitcycle,x0,v0,opt); xlc(end,end)
 [xlc,vlc,slc,hlc,flc]= cont(xlc,vlc,slc,hlc,flc,cds); xlc(end,end)
 jj=0;
@@ -269,8 +270,6 @@ for jj=1:size(slc,1)
     end
 end
 
-
-
 %% detection of PD bifurcation
 
 SPD=1;
@@ -287,8 +286,7 @@ par_PD=xlc(end,PD_index);
 parPD=parH;
 parPD(ap1)=par_PD;
 
-Per_Doubl(M) = xlc(end,PD_index);
-
+% Per_Doubl(M) = xlc(end,PD_index);
 
 %% Continuation of periodic solutions from PD
  
@@ -309,7 +307,7 @@ end
 % opt=contset(opt,'Adapt',0);
 % opt=contset(opt,'MaxNumPoints',50);
 
-[xpd0,vpd0]=init_PD_LC(@PS_specialRE_NBV,xlc,slc(SPD),ntst,ncol,1);
+[xpd0,vpd0]=init_PD_LC(@PS_example23,xlc,slc(SPD),ntst,ncol,1);
 [xlc1,vlc1,slc1,hlc1,flc1]= cont(@limitcycle,xpd0,vpd0,opt); xlc1(end,end)
 [xlc1,vlc1,slc1,hlc1,flc1]= cont(xlc1,vlc1,slc1,hlc1,flc1,cds); xlc1(end,end)
 jj=1;
@@ -343,7 +341,6 @@ end
 % save([num2str(M),'_bif']);
 
 
-
 %% H continuation in two parameters
 % H = vector of variables at H
 % parH = parameter vector at H
@@ -361,6 +358,8 @@ opt=contset(opt,'TestTolerance',TOL);
 opt=contset(opt,'Singularities',1);
 opt=contset(opt,'MaxNumPoints',100);
 opt=contset(opt,'Eigenvalues',0);
+
+% forward
 opt=contset(opt,'Backward',0);
 opt=contset(opt,'MaxStepsize',1);
 
@@ -368,7 +367,7 @@ opt=contset(opt,'MaxStepsize',1);
 % opt=contset(opt,'Userfunctions',0);
 % opt=contset(opt,'UserfunctionsInfo',UserInfo);
 
-[x0,v0]=init_H_H(@PS_specialRE_NBV,H,parH,[ap1 ap2]);
+[x0,v0]=init_H_H(@PS_example23,H,parH,[ap1 ap2]);
 [xh,vh,sh,hh,fh]=cont(@hopf,x0,[],opt); xh(MM+1,end)
 % jj=0;
 % while (xh(MM+2,end)>10 && xh(MM+2,end)>0 && jj<5)
@@ -379,16 +378,13 @@ opt=contset(opt,'MaxStepsize',1);
 % Plot
 figure
 cpl(xh,vh,sh,[MM+1 MM+2]); hold on
-xlabel('\log\gamma'); ylabel('tau');
+xlabel('log(gamma)'); ylabel('tau');
 title('Hopf curve')
 
-
-%%
+% backward
 opt=contset(opt,'Backward',1);
-[x0,v0]=init_H_H(@PS_specialRE_NBV,H,parH,[ap1 ap2]);
-%tic
+[x0,v0]=init_H_H(@PS_example23,H,parH,[ap1 ap2]);
 [xhb,vhb,shb,hhb,fhb]=cont(@hopf,x0,[],opt); xhb(MM+1,end)
-%time_hopf=toc
 
 jj=0;
 while (xhb(MM+1,end)<10 && jj<10)
@@ -400,7 +396,6 @@ cpl(xhb,vhb,shb,[MM+1 MM+2]); hold on
 
 title(['Regions, M=',num2str(M)]);
 % savefig([num2str(M),'_regions']);
-% 
 % save([num2str(M),'_bif_full']);
 
 
@@ -411,32 +406,30 @@ function [w,x]=cheb_quad(N,a,b)
 % Output:
 % x - N+1 Chebyshev nodes on [a,b] (x_0=a, x_N=b),
 % w - weights of the quadrature formula in [a,b],
-% D - differentiation matrix
-% q - row vector of the barycentric weights
 % see Trefethen 2000
 
-p=pi*(0:N)'/N;
-x=((a-b)*cos(p)+b+a)/2;
+    p=pi*(0:N)'/N;
+    x=((a-b)*cos(p)+b+a)/2;
 
-% Quadrature weights
-w=zeros(1,N+1);
-ii=2:N;
-v=ones(N-1,1);
-if mod(N,2)==0
-    w(1)=1/(N^2-1);
-    w(N+1)=w(1);
-    for k=1:N/2-1
-        v=v-2*cos(2*k*p(ii))/(4*k^2-1);
+    % Quadrature weights
+    w=zeros(1,N+1);
+    ii=2:N;
+    v=ones(N-1,1);
+    if mod(N,2)==0
+        w(1)=1/(N^2-1);
+        w(N+1)=w(1);
+        for k=1:N/2-1
+            v=v-2*cos(2*k*p(ii))/(4*k^2-1);
+        end
+        v=v-cos(N*p(ii))/(N^2-1);
+    else
+        w(1)=1/N^2;
+        w(N+1)=w(1);
+        for k=1:(N-1)/2
+            v=v-2*cos(2*k*p(ii))/(4*k^2-1);
+        end
     end
-    v=v-cos(N*p(ii))/(N^2-1);
-else
-    w(1)=1/N^2;
-    w(N+1)=w(1);
-    for k=1:(N-1)/2
-        v=v-2*cos(2*k*p(ii))/(4*k^2-1);
-    end
-end
-w(ii)=2*v/N;
-w=w*abs(b-a)/2;
+    w(ii)=2*v/N;
+    w=w*abs(b-a)/2;
 
 end

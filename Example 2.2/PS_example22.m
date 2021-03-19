@@ -1,4 +1,4 @@
-function out = PS_example23
+function out = PS_example22
 % Copyright (c) 2021 Francesca Scarabel
 % This code is distributed under the MIT license, see LICENSE for 
 % licensing information. 
@@ -7,11 +7,12 @@ function out = PS_example23
 % Scarabel, Diekmann, Vermiglio, Numerical bifurcation analysis of renewal
 % equations via pseudospectral approximation, available at 
 % https://arxiv.org/abs/2012.05364
-  
-%% PS_example23.m
+
+%% PS_example22.m
 % MatCont system definition file of the PseudoSpectral Discretization of
-% the nonlinear RE taken from Breda et al, EJQTDE 2016,
-% x(t) = beta*int_a^amax x(t-a)*exp(x(t-a))da
+% the nonlinear RE defined in the paper Gurney et al, Nature, 1980,
+% x(t) = beta*h(int_1^amax x(t-a)*exp(x(t-a))da)
+% with h(x)= x*exp(-x)
 % for the integrated state B=int_0^t x(s)ds
 % using Chebyshev zeros (plus 0)
 % The code uses the function polint.m, available from the Differentiation
@@ -26,16 +27,16 @@ out{6} = []; %@hessiansp;
 out{7} = []; %@der3;
 out{8} = [];
 out{9} = [];
-out{10}= @userf; % user function to select specific parameter values
+out{10}= @userf; % user function to select specific parameter values 
 out{11}= [];
 out{12}= [];
 out{13}= [];
 end
 
 % --------------------------------------------------------------------------
-function dydt = fun_eval(time,state,loggamma,abar,tau,M) 
+function dydt = fun_eval(time,state,gamma,mu,aux,tau,M) 
 
-    %% discretization of the unitary interval [-1,0]
+%% discretization of the unitary interval [-1,0]
     % construction of nodes and differentiation matrix
     p = pi*(2*(0:M-1)'+1)/(2*M);
     x=[1;sin(pi/2-p)]; % nodes with addition of 1 % either cos(p) or sin (pi/2-p) 
@@ -48,17 +49,25 @@ function dydt = fun_eval(time,state,loggamma,abar,tau,M)
     % scaling
     Nodes = 0.5*tau*(x-1);
     DD = 2/tau*D;
-
     DM = DD(2:end,2:end);
 
     %% SYSTEM DEFINITION *** specific to the equation ***
 
     % Parameters and functions
+    abar=1;
+    beta0 = gamma*exp(mu);
+
+    % For quadrature formulas 
     [QuadWeights,QuadNodes]=cheb_quad(50,-tau,-abar);
 
     der_state = DM*state;
-    der = polint(Nodes(2:end),der_state,QuadNodes);
-    FM = 0.5*exp(loggamma)*QuadWeights*(der.*exp(-der));
+    der = polint(Nodes(2:end),der_state,QuadNodes); % polint from Weideman-Reddy suite
+
+    ARG = QuadWeights*(der.*exp(mu*QuadNodes));
+    % ARG = integral(@(theta) polint(tau*UnitNodes(2:end),der_state,theta)'.*exp(mu*theta),-tau,-abar);
+
+    % FM = beta0*ARG.*exp(-ARG);
+    FM = beta0*ARG.*exp(-100*ARG); % scaling for ease of computation: b(t)=100*btilde
 
     %% FINAL APPROXIMATING ODE SYSTEM - PSEUDOSPECTRAL DISCRETIZATION
 
@@ -68,23 +77,25 @@ end
  
  
 % --------------------------------------------------------------------------
-function Weq=init(M,xeq,yeq)
+function Weq=init(M,xeq,yeq,tau)
 % INPUT: M is the discretization parameter
 %        xeq,yeq are column vectors with the equilibrium states of the RE and
 %        DDE respectively
 % OUTPUT Weq is the initial vector for init_EP_EP
     
-    Weq=[kron(ones(M,1),xeq); kron(ones(M+1,1),yeq)];
+    [~,UnitNodes]=cheb_quad(M,0,-1);
+    Nodes=tau*UnitNodes;
+    Weq=[kron(Nodes(2:end),xeq); kron(ones(M+1,1),yeq)];
     
 end
 
-function out=userf(time,state,loggamma,abar,aux,tau,M) 
+
+function out=userf(time,state,gamma,mu,aux,tau,M) 
 % Userfunction to select specific value of parameter
     
-    out = (loggamma-1).*(loggamma-2).*(loggamma-3).*(loggamma-4);
+    out = (gamma-60).*(gamma-70);
     
 end
-
 
 % ------------
 %%% AUXILIARY FUNCTIONS
@@ -93,6 +104,8 @@ function [w,x]=cheb_quad(N,a,b)
 % Output:
 % x - N+1 Chebyshev nodes on [a,b] (x_0=a, x_N=b),
 % w - weights of the quadrature formula in [a,b],
+% D - differentiation matrix
+% q - row vector of the barycentric weights
 % see Trefethen 2000
 
     p=pi*(0:N)'/N;

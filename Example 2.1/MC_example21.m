@@ -1,5 +1,5 @@
 % Copyright (c) 2021 Francesca Scarabel
-% This code is distributed under the MIT license, see LICENSE.txt for 
+% This code is distributed under the MIT license, see LICENSE for 
 % licensing information. 
 % 
 % If using this code, please cite 
@@ -8,8 +8,9 @@
 % https://arxiv.org/abs/2012.05364
 
 % MC_example21
-% command line instructions for MatCont continuation of the system defined
+% command line instructions for the MatCont continuation of the system defined
 % in PS_example21.m
+% (Diekmann & Montijn, JMB, 1982)
 
 clear;
 clearvars -global cds
@@ -64,7 +65,7 @@ TestTOL=1e-6;
 %% Continuation process
 
 MM=d1*M+d2*(M+1); % dimension of the approximating ODE system
-handles=feval(@PS_prelude);
+handles=feval(@PS_example21);
 opt=contset;
 global cds;
 
@@ -83,7 +84,7 @@ opt=contset(opt,'MaxNumPoints',100);
 
 opt=contset(opt,'Backward',0);
 state_eq=feval(handles{1},M,xeq,yeq); % initializes equilibrium vector
-[x0,v0]=init_EP_EP(@PS_prelude,state_eq,par0,ap1);
+[x0,v0]=init_EP_EP(@PS_example21,state_eq,par0,ap1);
 [xe,ve,se,he,fe]=cont(@equilibrium,x0,v0,opt); xe(end,end)
 while ((length(se)<3) && xe(end,end)< 10)
     [xe,ve,se,he,fe]=cont(xe,ve,se,he,fe,cds); xe(end,end)
@@ -129,7 +130,7 @@ opt=contset(opt,'Backward',0);
 % opt=contset(opt,'Userfunctions',1);
 % opt=contset(opt,'UserfunctionsInfo',UserInfo);
 
-[x0,v0]=init_BP_EP(@PS_prelude,BP,parBP,sBP,0.001);
+[x0,v0]=init_BP_EP(@PS_example21,BP,parBP,sBP,0.001);
 [xe,ve,se,he,fe]=cont(@equilibrium,x0,v0,opt); xe(end,end)
 jj=1;
 while ((length(se)<3) && xe(end,end)<4 && jj<5)
@@ -139,7 +140,7 @@ end
 
 if xe(end,end)<0
     opt=contset(opt,'Backward',1);
-    [x0,v0]=init_BP_EP(@PS_prelude,BP,parBP,sBP,0.001);
+    [x0,v0]=init_BP_EP(@PS_example21,BP,parBP,sBP,0.001);
     [xe,ve,se,he,fe]=cont(@equilibrium,x0,v0,opt); xe(end,end)
     jj=1;
     while ((length(se)<3) && xe(end,end)<10 && jj<5)
@@ -153,7 +154,7 @@ end
 figure(1)
 cpl(xe,ve,se,[MM+1 1]);
 xlabel('beta');
-title('Bifurcation prelude')
+title('Bifurcation Example 2.1')
 
 % Plot of bifurcation diagram of first component
 angles = pi*(2*[1:M]'-1)/(2*M); 
@@ -261,7 +262,7 @@ ncol=4; % degree of polynomial
 % opt=contset(opt,'Userfunctions',1);
 % opt=contset(opt,'UserfunctionsInfo',UserInfo);
 
-[x0,v0]=init_H_LC(@PS_prelude,H,parH,ap1,0.1,ntst,ncol);
+[x0,v0]=init_H_LC(@PS_example21,H,parH,ap1,0.1,ntst,ncol);
 [xlc,vlc,slc,hlc,flc]= cont(@limitcycle,x0,v0,opt); xlc(end,end)
 % jj=0;
 % while (xlc(end,end)<4 && jj<10)
@@ -269,7 +270,7 @@ ncol=4; % degree of polynomial
 %     jj=jj+1;
 % end
 
-% save([num2str(M),'_prelude_ntst_',num2str(ntst)]);
+% save([num2str(M),'_example21_ntst_',num2str(ntst)]);
 
 %% Plot max and min periodic solutions
 Per_Solutions = zeros(ntst*ncol+1,size(xlc,2));
