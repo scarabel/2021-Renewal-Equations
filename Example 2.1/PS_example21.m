@@ -53,7 +53,7 @@ function dydt = fun_eval(time,state,loggamma,q,tau,M)
     %% SYSTEM DEFINITION *** specific to the equation ***
 
     % Parameters and functions
-    n_quad = M-1;
+    nquad = M-1;
     [QuadWeights,QuadNodes]=cheb_quad(nquad,-tau,0);
 
     k=3; theta=0.1; 

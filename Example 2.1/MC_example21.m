@@ -17,7 +17,7 @@ clearvars -global cds
 close all
 
 % Discretization parameters
-M=40;
+M=20;
 
 % Initial parameter values
 d1=1; d2=0; % dimension of RE and DDE, respectively
@@ -35,8 +35,8 @@ kernel = @(s) kernel_shape(s)/integral(@(sigma) kernel_shape(sigma),0,tau);
 figure(23)
 plot(0:0.1:tau, kernel(0:0.1:tau),'r')
 
-n_quad = M-1; %2*M; %max([M,20]);
-[QuadWeights,QuadNodes,~,~]=cheb_delay(n_quad,-tau,0);
+nquad = M-1; %2*M; %max([M,20]);
+[QuadWeights,QuadNodes]=cheb_quad(nquad,-tau,0);
 kernel_shape = @(s) s.^(k-1).*exp(-s./theta).*(s<=tau);
 norm_const = QuadWeights*kernel_shape(-QuadNodes); %integral(@(sigma) kernel_shape(sigma),0,tau);
 kernel = @(s) kernel_shape(s)/norm_const;
@@ -173,7 +173,7 @@ D=D-diag(sum(D')); % differentiation matrix
 Nodes = 0.5*tau*(x-1);
 DM = 2/tau*D(2:end,2:end);
 
-n_quad = M-1;
+nquad = M-1;
 [QuadWeights,QuadNodes]=cheb_quad(nquad,-tau,0);
 
 b0 = zeros(size(xe,2),1);
