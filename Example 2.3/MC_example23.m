@@ -318,28 +318,32 @@ end
 
 %% Plot max and min periodic solutions
 
-ninterp=100;
+Per_Solutions1 = zeros(ntst*ncol+1,size(xlc1,2));
+for ind_persol=1:size(xlc1,2)
+    for ind_mesh=1:ntst*ncol+1
+        % BB=DM*xlc1((ind_mesh-1)*(MM*ncol)+1:(ind_mesh-1)*(MM*ncol)+MM,ind_persol);
+        % b0_per(ind_mesh)=polint(tau_max*UnitNodes(2:end),BB,0);
+        BB = DM*xlc1((ind_mesh-1)*MM+1:(ind_mesh-1)*MM+MM,ind_persol);
+        der = polint(Nodes(2:end),BB,QuadNodes);
+        b0_per = 0.5*exp(xlc1(end,ind_persol))*QuadWeights*(der.*exp(-der));
+        Per_Solutions1(ind_mesh,ind_persol) = b0_per;
 
-    % re-interpolation for a smoother plot
-    mesh_refined=linspace(0,1,ninterp);
-    Per_Solutions = zeros(length(mesh_refined),size(xlc1,2));
-    for ind_persol=1:size(xlc1,2)
-        Per_Solutions(:,ind_persol) = interp1(flc1(1:ntst+1,ind_persol),xlc1(1:MM*ncol:((ntst*ncol+1)*MM),ind_persol),mesh_refined,'spline');
     end
-upperbound1=max(Per_Solutions);
-lowerbound1=min(Per_Solutions);
 
-figure(1)
+end
+
+upperbound1=max(Per_Solutions1);
+lowerbound1=min(Per_Solutions1);
+
+figure(10)
 plot(xlc1(end,:),upperbound1,'g',xlc1(end,:),lowerbound1,'g');
 
 for ii=2:length(slc1)-1
     index=slc1(ii).index;
-    plot(xlc1(end,index),upperbound1(index),'og',xlc1(end,index),lowerbound1(index),'og');
+    plot(xlc1(end,index),upperbound1(index),'or',xlc1(end,index),lowerbound1(index),'or');
 end
 
 % savefig([num2str(M),'_bif']);
-% save([num2str(M),'_bif']);
-
 
 %% H continuation in two parameters
 % H = vector of variables at H
@@ -350,6 +354,7 @@ display('Starting H continuation');
 ap2=3;
 
 TOL=1e-6;
+opt=contset(opt,'Userfunctions',0);
 
 % set options
 %opt=contset(opt,'MaxStepsize',1e-1);
