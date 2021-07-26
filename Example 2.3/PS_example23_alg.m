@@ -4,10 +4,9 @@ function out = PS_example23_alg
 % licensing information. 
 % 
 % If using this code, please cite 
-% Scarabel, Diekmann, Vermiglio, Numerical bifurcation analysis of renewal
-% equations via pseudospectral approximation, available at 
-% https://arxiv.org/abs/2012.05364
-  
+% Scarabel F, Diekmann O, Vermiglio R (2021). Numerical bifurcation analysis of renewal equations via pseudospectral approximation, 
+% Journal of Computational and Applied Mathematics, 397:113611. https://doi.org/10.1016/j.cam.2021.113611
+
 %% PS_example23_alg.m
 % MatCont system definition file of the PseudoSpectral Discretization of
 % the nonlinear RE taken from Breda et al, EJQTDE 2016,
