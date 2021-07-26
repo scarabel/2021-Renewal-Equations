@@ -3,10 +3,9 @@
 % licensing information. 
 % 
 % If using this code, please cite 
-% Scarabel, Diekmann, Vermiglio, Numerical bifurcation analysis of renewal
-% equations via pseudospectral approximation, available at 
-% https://arxiv.org/abs/2012.05364
-  
+% Scarabel F, Diekmann O, Vermiglio R (2021). Numerical bifurcation analysis of renewal equations via pseudospectral approximation, 
+% Journal of Computational and Applied Mathematics, 397:113611. https://doi.org/10.1016/j.cam.2021.113611
+
 %% MC_example23_alg.m
 % command line instructions for the MatCont continuation of the system defined
 % in PS_example23_alg.m
