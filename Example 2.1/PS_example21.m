@@ -4,9 +4,8 @@ function out = PS_example21
 % licensing information. 
 % 
 % If using this code, please cite 
-% Scarabel, Diekmann, Vermiglio, Numerical bifurcation analysis of renewal
-% equations via pseudospectral approximation, available at 
-% https://arxiv.org/abs/2012.05364
+% Scarabel F, Diekmann O, Vermiglio R (2021). Numerical bifurcation analysis of renewal equations via pseudospectral approximation, 
+% Journal of Computational and Applied Mathematics, 397:113611. https://doi.org/10.1016/j.cam.2021.113611
   
 %% PS_example21.m
 % MatCont system definition file of the PseudoSpectral Discretization of
