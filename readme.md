@@ -3,6 +3,7 @@
 This folder contains some codes that are useful to reproduce the results in the paper
 Scarabel F, Diekmann O, Vermiglio R (2021). Numerical bifurcation analysis of renewal equations via pseudospectral approximation, 
 Journal of Computational and Applied Mathematics, 397:113611. https://doi.org/10.1016/j.cam.2021.113611
+
 Please cite the reference when using this code.
 
 The codes are used to perform the numerical bifurcation analysis of the examples in the paper.
