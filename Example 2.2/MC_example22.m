@@ -380,40 +380,7 @@ for ii=2:length(slc)-1
 end
 % savefig(['M',num2str(M),'_bif_diagram_tau_',num2str(tau_max),'_ntst_',num2str(ntst)]);
 
-
-function [w,x]=cheb_quad(N,a,b)
-% Output:
-% x - N+1 Chebyshev nodes on [a,b] (x_0=a, x_N=b),
-% w - weights of the quadrature formula in [a,b],
-% see Trefethen 2000
-
-    p=pi*(0:N)'/N;
-    x=((a-b)*cos(p)+b+a)/2;
-
-    % Quadrature weights
-    w=zeros(1,N+1);
-    ii=2:N;
-    v=ones(N-1,1);
-    if mod(N,2)==0
-        w(1)=1/(N^2-1);
-        w(N+1)=w(1);
-        for k=1:N/2-1
-            v=v-2*cos(2*k*p(ii))/(4*k^2-1);
-        end
-        v=v-cos(N*p(ii))/(N^2-1);
-    else
-        w(1)=1/N^2;
-        w(N+1)=w(1);
-        for k=1:(N-1)/2
-            v=v-2*cos(2*k*p(ii))/(4*k^2-1);
-        end
-    end
-    w(ii)=2*v/N;
-    w=w*abs(b-a)/2;
-
-end
-
-%%
+%% 
 
 function [w,x]=cheb_quad(N,a,b)
 % Output:
