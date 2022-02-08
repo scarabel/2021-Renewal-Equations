@@ -156,11 +156,6 @@ xlabel('beta');
 title('Bifurcation Example 2.1')
 
 % Plot of bifurcation diagram of first component
-angles = pi*(2*[1:M]'-1)/(2*M); 
-Nodes = [0;0.5*tau*cos(angles)-0.5*tau];
-DD = poldif(Nodes,1);
-DM = DD(2:end,2:end);
-
 p = pi*(2*(0:M-1)'+1)/(2*M);
 x=[1;sin(pi/2-p)]; % nodes with addition of 1 % either cos(p) or sin (pi/2-p) 
 X=repmat(x,1,M+1);

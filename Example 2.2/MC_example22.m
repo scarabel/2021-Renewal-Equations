@@ -284,18 +284,165 @@ xlabel('mu'); ylabel('gamma/mu');
 title(['Stability regions, M=',num2str(M),', tau=',num2str(tau_max)]);
 % savefig(['M',num2str(M),'_PD_curve_tau_',num2str(tau_max),'_ntst_',num2str(ntst)]); % ]); %
 
-%% Plot of bifurcation diagram
+%% Plot of bifurcation diagram of first component
+p = pi*(2*(0:M-1)'+1)/(2*M);
+x=[1;sin(pi/2-p)]; % nodes with addition of 1 % either cos(p) or sin (pi/2-p) 
+X=repmat(x,1,M+1);
+dX=X-X';
+c=[2^(M-1)/M*prod(dX(1,2:end)); ((-1).^(0:M-1)').*dX(2:end,1)./sin(p)];
+D=(c*(1./c'))./(dX+(eye(M+1)));
+D=D-diag(sum(D')); % differentiation matrix
+% scaling
+Nodes = 0.5*tau_max*(x-1);
+DM = 2/tau_max*D(2:end,2:end);
 
-figure(1); clf; % bifurcation diagram in the sun-star variable
-cpl(xeBP,veBP,seBP,[MM+1 1]); hold on;
-cpl(xeH,veH,seH,[MM+1 1]);
-xlabel('gamma');
+[QuadWeights,QuadNodes]=cheb_quad(50,-tau_max,-1);
+
+b0BP = zeros(size(xeBP,2),1);
+for index_sol = 1:size(xeBP,2)
+    
+    mub = xeBP(end,index_sol);
+    % Parameters and functions
+    beta0 = gamma*exp(mub);
+    
+    derb = DM*xeBP(1:end-1,index_sol);
+    der = polint(Nodes(2:end),derb,QuadNodes); % polint from Weideman-Reddy suite
+
+    ARG = QuadWeights*(der.*exp(mub*QuadNodes));
+
+    FM = beta0*ARG.*exp(-100*ARG); % scaling for ease of computation: b(t)=100*btilde
+    b0BP(index_sol) = FM; % select component in node -tau
+end
+
+b0H = zeros(size(xeH,2),1);
+for index_sol = 1:size(xeH,2)
+    
+    mub = xeH(end,index_sol);
+    % Parameters and functions
+    beta0 = gamma*exp(mub);
+    
+    derb = DM*xeH(1:end-1,index_sol);
+    der = polint(Nodes(2:end),derb,QuadNodes); % polint from Weideman-Reddy suite
+
+    ARG = QuadWeights*(der.*exp(mub*QuadNodes));
+
+    FM = beta0*ARG.*exp(-100*ARG); % scaling for ease of computation: b(t)=100*btilde
+    b0H(index_sol) = FM; % select component in node -tau
+end
+
+figure(10); clf; 
+xlabel('$\mu$','Interpreter','latex');
 title(['Bifurcation Example 2.2, mu=',num2str(mu),', M=',num2str(M)]);
+
+plot(xeBP(end,:),b0BP,'b');
+hold on
+plot(xeH(end,:),b0H,'b');
+
+for ii=2:length(seBP)-1
+    index=seBP(ii).index;
+    plot(xeBP(end,index),b0BP(index),'or');
+end
+
+for ii=2:length(seH)-1
+    index=seH(ii).index;
+    plot(xeH(end,index),b0H(index),'or');
+end
+
+Per_Solutions = zeros(ntst*ncol+1,size(xlc,2));
+for ind_persol=1:size(xlc,2)
+    for ind_mesh=1:ntst*ncol+1
+
+        mub = xlc(end,ind_persol);
+        % Parameters and functions
+        beta0 = gamma*exp(mub);
+
+        derb = DM*xlc((ind_mesh-1)*MM+1:(ind_mesh-1)*MM+MM,ind_persol);
+        der_quad = polint(Nodes(2:end),derb,QuadNodes);
+        
+        ARG = QuadWeights*(der_quad.*exp(mub*QuadNodes));
+
+        FM = beta0*ARG.*exp(-100*ARG); % scaling for ease of computation: b(t)=100*btilde
+        b0_per = FM;
+        Per_Solutions(ind_mesh,ind_persol) = b0_per;
+
+    end
+        
+end
+    
+upperbound=max(Per_Solutions);
+lowerbound=min(Per_Solutions);
+
 plot(xlc(end,:),upperbound,'g',xlc(end,:),lowerbound,'g');
-% ylabel('max/min','interpreter','latex')
 
 for ii=2:length(slc)-1
     index=slc(ii).index;
     plot(xlc(end,index),upperbound(index),'or',xlc(end,index),lowerbound(index),'or');
 end
 % savefig(['M',num2str(M),'_bif_diagram_tau_',num2str(tau_max),'_ntst_',num2str(ntst)]);
+
+
+function [w,x]=cheb_quad(N,a,b)
+% Output:
+% x - N+1 Chebyshev nodes on [a,b] (x_0=a, x_N=b),
+% w - weights of the quadrature formula in [a,b],
+% see Trefethen 2000
+
+    p=pi*(0:N)'/N;
+    x=((a-b)*cos(p)+b+a)/2;
+
+    % Quadrature weights
+    w=zeros(1,N+1);
+    ii=2:N;
+    v=ones(N-1,1);
+    if mod(N,2)==0
+        w(1)=1/(N^2-1);
+        w(N+1)=w(1);
+        for k=1:N/2-1
+            v=v-2*cos(2*k*p(ii))/(4*k^2-1);
+        end
+        v=v-cos(N*p(ii))/(N^2-1);
+    else
+        w(1)=1/N^2;
+        w(N+1)=w(1);
+        for k=1:(N-1)/2
+            v=v-2*cos(2*k*p(ii))/(4*k^2-1);
+        end
+    end
+    w(ii)=2*v/N;
+    w=w*abs(b-a)/2;
+
+end
+
+%%
+
+function [w,x]=cheb_quad(N,a,b)
+% Output:
+% x - N+1 Chebyshev nodes on [a,b] (x_0=a, x_N=b),
+% w - weights of the quadrature formula in [a,b],
+% see Trefethen 2000
+
+    p=pi*(0:N)'/N;
+    x=((a-b)*cos(p)+b+a)/2;
+
+    % Quadrature weights
+    w=zeros(1,N+1);
+    ii=2:N;
+    v=ones(N-1,1);
+    if mod(N,2)==0
+        w(1)=1/(N^2-1);
+        w(N+1)=w(1);
+        for k=1:N/2-1
+            v=v-2*cos(2*k*p(ii))/(4*k^2-1);
+        end
+        v=v-cos(N*p(ii))/(N^2-1);
+    else
+        w(1)=1/N^2;
+        w(N+1)=w(1);
+        for k=1:(N-1)/2
+            v=v-2*cos(2*k*p(ii))/(4*k^2-1);
+        end
+    end
+    w(ii)=2*v/N;
+    w=w*abs(b-a)/2;
+
+end
